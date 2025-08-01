@@ -4,3 +4,4 @@
 -- ADD COLUMN end_date DATE;
 
 select * FROM student
+ORDER BY student_id DESC

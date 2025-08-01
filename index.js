@@ -30,6 +30,7 @@ const session = require('express-session');
 const flash = require('express-flash');
 const multer = require('multer');
 const path = require('path');
+const { log } = require("console");
 const upload = multer({ dest: 'public/uploads',
   limits: { fileSize: 5 * 1024 * 1024 }, //  // 5 MB limit
   fileFilter: (req, file, cb) => {
@@ -497,7 +498,7 @@ if (imagefiles) {
   }
 });
 
-  app.get('/calendar', async (req, res) => {
+app.get('/calendar', async (req, res) => {
         const log_id = req.params.log_id;
         const matric_num = req.session.matric_num;
         console.log(log_id)
@@ -514,34 +515,51 @@ if (imagefiles) {
     }
 
 
-      try { 
-        const logsResult = await client.query(`
-          SELECT date, log_text, log_id 
-          FROM student_log 
-          WHERE matric_num = $1 
-            AND EXTRACT(YEAR FROM date) = $2 
-            AND EXTRACT(MONTH FROM date) = $3
-        `, [matric_num, year, month]);
-        // console.log(matric_num, year, month)
+     
+  try {
+    // ✅ Fetch student IT start and end dates
+    const studentResult = await client.query(
+      'SELECT start_date, end_date FROM student WHERE matric_num = $1',
+      [matric_num]
+    );
+    if (studentResult.rowCount === 0) {
+      return res.status(404).send('Student IT duration not found.');
+    }
+    const { start_date, end_date } = studentResult.rows[0];
 
-        let logs = {};
-        logsResult.rows.forEach(log => {
-        // log.date is a JS Date if pg parses it, or a string if not
-        let dateObj = log.date instanceof Date ? log.date : new Date(log.date);
-        const key = dateObj.getFullYear() + '-' +
-                    String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(dateObj.getDate()).padStart(2, '0');
-        //   console.log(key)
-        log.date = key; // Store the date in YYYY-MM-DD format
-          logs[key] = log;
+    // ✅ Fetch logs only within IT period for the given month
+    const logsResult = await client.query(`
+      SELECT date, log_text, log_id
+      FROM student_log
+      WHERE matric_num = $1
+        AND date BETWEEN $2 AND $3
+        AND EXTRACT(YEAR FROM date) = $4
+        AND EXTRACT(MONTH FROM date) = $5
+    `, [matric_num, start_date, end_date, year, month]);
+      console.log(start_date, end_date, year, month);
+      
+    let logs = {};
+    logsResult.rows.forEach(log => {
+      let dateObj = log.date instanceof Date ? log.date : new Date(log.date);
+      const key = dateObj.getFullYear() + '-' +
+                  String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
+                  String(dateObj.getDate()).padStart(2, '0');
+      log.date = key;
+      logs[key] = log;
+    });
 
-        });
-
-    res.render('calendar', { logs, currentYear: year, currentMonth: month });
-    } catch (err) {
-        console.error('Error loading calendar:', err);
-        res.status(500).send('Something went wrong.');
-      }
+    // ✅ Send start_date and end_date to frontend to highlight/disable out-of-range days
+    res.render('calendar', {
+      logs,
+      currentYear: year,
+      currentMonth: month,
+      startDate: new Date(start_date).toDateString(),
+      endDate: new Date(end_date).toDateString()
+    });
+  } catch (err) {
+    console.error('Error loading calendar:', err);
+    res.status(500).send('Something went wrong.');
+  }
 });
 
 app.get('/view-logs', async (req, res) => {
@@ -681,6 +699,7 @@ app.get('/profile', async (req, res) => {
 });
 
 app.post('/calendar', async (req, res) => {
+  const matric_num = req.session.matric_num;
   const log_text = req.body.log_text;
   const { date } = req.body
   const today = new Date();
@@ -693,6 +712,25 @@ const logDate = new Date(date);
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - today.getDay());
 
+        const studentRes = await client.query('SELECT start_date, it_duration FROM student WHERE matric_num = $1', [matric_num]);
+
+        if (studentRes.rows.length === 0) {
+          return res.status(404).send("Student not found.");
+        }
+
+        const { start_date, it_duration } = studentRes.rows[0];
+        const start = new Date(start_date);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(start);
+        end.setMonth(end.getMonth() + parseInt(it_duration)); // assumes duration is in months
+        end.setHours(0, 0, 0, 0);
+
+    // ❌ Reject logs outside IT period
+    if (logDate < start || logDate > end) {
+      return res.status(403).send("This date is outside your IT duration.");
+    }
+
   if (logDate < weekStart || logDate > today) {
     return res.status(403).send("You can only submit logs from the current week, up to today.");
   }
@@ -704,7 +742,6 @@ const logDate = new Date(date);
   console.log(date)
   // Try to get log_id from body or query (if editing an existing log)
   const log_id = req.body.log_id ?? req.query.log_id ?? null;
-  const matric_num = req.session.matric_num;
   console.log(log_text, log_id, date, matric_num)
   // if (!log_text || !date || !matric_num) {
   // return res.status(400).send("Missing required fields");
