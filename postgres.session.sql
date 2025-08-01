@@ -3,5 +3,7 @@
 -- ADD COLUMN start_date DATE,
 -- ADD COLUMN end_date DATE;
 
+al
+
 select * FROM student
 ORDER BY student_id DESC
