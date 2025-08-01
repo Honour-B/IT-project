@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Request OTP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 50px 60px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .info {
+      margin-bottom: 30px;
+      font-size: 18px;
+      color: #f1f1f1;
+      line-height: 1.6;
+    }
+
+    input[type="hidden"] {
+      display: none;
+    }
+
+    button {
+      background-color: #00b894;
+      border: none;
+      padding: 14px 30px;
+      color: white;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #019170;
+    }
+
+    .message {
+      margin-top: 20px;
+      color: #55efc4;
+      font-size: 14px;
+    }
+
+    .error {
+      margin-top: 20px;
+      color: #ff7675;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Request OTP</h2>
+
+    <form action="/send-otp" method="POST">
+      <div class="info">
+        <div>Matric Number: <strong><%= matric_num %></strong></div>
+        <div>Email: <strong><%= email %></strong></div>
+      </div>
+
+      <input type="hidden" name="matric_num" value="<%= matric_num %>">
+      <input type="hidden" name="email" value="<%= email %>">
+
+      <button type="submit">Request OTP</button>
+
+      <% if (message) { %>
+        <div class="message"><%= message %></div>
+      <% } %>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+    </form>
+  </div>
+
+</body>
+</html>

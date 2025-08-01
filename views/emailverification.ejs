@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify Email</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    .otp-input-container {
+      display: flex;
+      justify-content: space-between;
+      margin: 15px 0;
+    }
+
+    .otp-input-container input {
+      width: 45px;
+      height: 50px;
+      text-align: center;
+      font-size: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: border 0.2s ease-in-out;
+    }
+
+    .otp-input-container input:focus {
+      border: 1px solid #007bff;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .alert {
+      color: green;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .error {
+      color: red;
+      margin-top: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Email Verification</h2>
+
+    <form id="otpForm" action="/verify-otp" method="POST">
+      <label>Matric Number</label>
+      <input type="text" name="matric_num" value="<%= matric_num %>" readonly>
+
+      <label>Email</label>
+      <input type="email" name="email" value="<%= email %>" readonly>
+
+      <label>Enter OTP</label>
+      <div class="otp-input-container">
+        <% for (let i = 0; i < 6; i++) { %>
+          <!-- Removed name="otp[]" to avoid duplicate values -->
+          <input type="text" maxlength="1" class="otp-box" required>
+        <% } %>
+      </div>
+
+      <!-- Hidden field to store final joined OTP -->
+      <input type="hidden" name="otp" id="otpField">
+
+      <button type="submit">✅ Verify</button>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+    </form>
+
+    <!-- Resend OTP -->
+    <form action="/send-otp" method="POST" style="margin-top: 20px;">
+      <input type="hidden" name="matric_num" value="<%= matric_num %>">
+      <input type="hidden" name="email" value="<%= email %>">
+      <button type="submit">🔁 Resend OTP</button>
+    </form>
+  </div>
+
+  <script>
+    // Auto move between OTP boxes
+    const otpInputs = document.querySelectorAll('.otp-box');
+
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        if (input.value.length === 1 && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+    });
+
+    // Combine OTP values into single hidden field before submitting
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+      const combinedOTP = Array.from(otpInputs).map(input => input.value).join('');
+      document.getElementById('otpField').value = combinedOTP;
+    });
+  </script>
+</body>
+</html>
+

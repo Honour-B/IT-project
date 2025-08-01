@@ -1,0 +1,103 @@
+/* Header Styling */
+h1 {
+    text-align: center;
+    font-size: 2.5em; /* Larger font size */
+    color: #333; /* Dark color for the header text */
+    font-family: 'Arial', sans-serif; /* Change the font family */
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #a0c1e5; /* Blue background color */
+    color: #fff; /* White text color */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-transform: uppercase; /* Transform the text to uppercase */
+    letter-spacing: 2px; /* Add space between letters */
+    padding-top: 20px;
+    padding-bottom: 20px;
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Header Hover Effect */
+h1:hover {
+    background-color: #0056b3; /* Change background color on hover */
+    transform: translateY(-5px); /* Slight lift effect when hovered */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* More pronounced shadow on hover */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2em; /* Adjust font size for smaller screens */
+        padding: 15px; /* Adjust padding */
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  form {
+    background: #f3efef;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #444;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.3s;
+  }
+  
+  input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .error {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: rgb(15, 1, 1);
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  

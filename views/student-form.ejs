@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Registration</title>
+
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background: linear-gradient(to right, #dbeafe, #e0f2f1);
+      font-family: 'Segoe UI', sans-serif;
+      padding-top: 50px;
+    }
+
+    .registration-card {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #0d6efd;
+    }
+
+    h4.section-title {
+      color: #343a40;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 5px;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 10px;
+    }
+
+    .card-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .card-footer a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+
+    .card-footer a:hover {
+      text-decoration: underline;
+    }
+    label {
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
+}
+
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+select {
+  background-color: #fff;
+  cursor: pointer;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 3px #007bff50;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%204%205'%3E%3Cpath%20fill='%23666'%20d='M2%205L0%200h4L2%205z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 8px 10px;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="registration-card">
+    <h1>🎓 Student Registration</h1>
+
+    <form id="studentForm" action="/student-form" method="POST">
+      <!-- NAME SECTION -->
+      <h4 class="section-title">👤 Student Information</h4>
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label for="matric_num" class="form-label">Matric Number</label>
+          <input type="text" class="form-control" id="matric_num" name="matric_num" value="<%= oldInput?.matric_num || '' %>" required>
+          <div class="error"><%= errors?.matric_num || '' %></div>
+        </div>
+
+        <div class="mb-3 col-md-6">
+          <label for="full_name" class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="full_name" name="full_name" value="<%= oldInput?.full_name || '' %>" required>
+          <div class="error"><%= errors?.full_name || '' %></div>
+        </div>
+      </div>
+
+      <!-- INSTITUTION SECTION -->
+      <h4 class="section-title">🏫 Institution Details</h4>
+      <div class="row">
+        <div class="mb-3 col-md-4">
+          <label for="level" class="form-label">Level</label>
+          <input type="number" class="form-control" id="level" name="level" value="<%= oldInput?.level || '' %>" required>
+          <div class="error"><%= errors?.level || '' %></div>
+        </div>
+
+        <div class="mb-3 col-md-4">
+          <label for="department" class="form-label">Department</label>
+          <input type="text" class="form-control" id="department" name="department" value="<%= oldInput?.department || '' %>" required>
+          <div class="error"><%= errors?.department || '' %></div>
+        </div>
+
+        <div class="mb-3 col-md-4">
+          <label for="faculty" class="form-label">Faculty</label>
+          <input type="text" class="form-control" id="faculty" name="faculty" value="<%= oldInput?.faculty || '' %>" required>
+          <div class="error"><%= errors?.faculty || '' %></div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="school" class="form-label">School</label>
+        <input type="text" class="form-control" id="school" name="school" value="<%= oldInput?.school || '' %>" required>
+        <div class="error"><%= errors?.school || '' %></div>
+      </div>
+
+      <!-- CONTACT SECTION -->
+      <h4 class="section-title">📞 Contact Details</h4>
+      <div class="mb-3">
+        <label for="work_address" class="form-label">Work Address</label>
+        <input type="text" class="form-control" id="work_address" name="work_address" value="<%= oldInput?.work_address || '' %>" required>
+        <div class="error"><%= errors?.work_address || '' %></div>
+      </div>
+
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label for="phone_num" class="form-label">Phone Number</label>
+          <input type="tel" class="form-control" id="phone_num" name="phone_num" value="<%= oldInput?.phone_num || '' %>" required>
+          <div class="error"><%= errors?.phone_num || '' %></div>
+        </div>
+
+        <div class="mb-3 col-md-6">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="email" name="email" value="<%= oldInput?.email || '' %>" required>
+          <div class="error"><%= errors?.email || '' %></div>
+        </div>
+      </div>
+
+        <div class="mb-3">
+          <label for="it_duration">IT Duration (in Months)</label>
+          <select id="it_duration" name="it_duration" class="form-select" required>
+            <option value="">-- Select duration --</option>
+            <option value="1">1 Month</option>
+            <option value="2">2 Months</option>
+            <option value="3">3 Months</option>
+            <option value="4">4 Months</option>
+            <option value="5">5 Months</option>
+            <option value="6">6 Months</option>
+          </select>
+        </div>
+<div class="mb-3">
+  <label for="start_date">Start Date</label>
+  <div class="d-flex gap-2">
+    <select id="start_date" class="form-select" required>
+      <option value="">Day</option>
+      <% for (let i = 1; i <= 31; i++) { %>
+        <option value="<%= i %>"><%= i %></option>
+      <% } %>
+    </select>
+<input type="hidden" name="start_date" id="start_date_hidden" value="<%= oldInput?.start_date || '' %>">
+<div class="error"><%= errors?.mapped?.msg || '' %></div>
+
+    <select id="start_month" class="form-select" required>
+      <option value="">Month</option>
+      <% const months = ["January", "February", "March", "April", "May", "June", "July",
+                         "August", "September", "October", "November", "December"]; %>
+      <% months.forEach((m, index) => { %>
+        <option value="<%= index %>"><%= m %></option>
+      <% }) %>
+    </select>
+
+    <select id="start_year" class="form-select" required>
+      <option value="">Year</option>
+      <% const currentYear = new Date().getFullYear(); %>
+      <% for (let y = currentYear; y <= currentYear + 1; y++) { %>
+        <option value="<%= y %>"><%= y %></option>
+      <% } %>
+    </select>
+  </div>
+</div>
+
+      <div class="mb-3">
+  <label for="end_date">End Date</label>
+  <input type="text" id="end_date" class="form-control" readonly>
+</div>
+
+      <!-- SUBMIT BUTTON -->
+      <div class="mt-4">
+        <button type="submit" class="btn btn-primary">✅ Register</button>
+      </div>
+
+      <div class="card-footer">
+        Already have an account? <a href="/login">Login here</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const startDay = document.getElementById('start_date');
+  const startMonth = document.getElementById('start_month');
+  const startYear = document.getElementById('start_year');
+  const durationInput = document.getElementById('it_duration');
+  const endDisplay = document.getElementById('end_date');
+
+  function updateEndDate() {
+    const day = parseInt(startDay.value);
+    const month = parseInt(startMonth.value);
+    const year = parseInt(startYear.value);
+    const duration = parseInt(durationInput.value);
+
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year) && !isNaN(duration)) {
+      const startDate = new Date(year, month, day);
+      const endDate = new Date(startDate);
+      endDate.setMonth(startDate.getMonth() + duration);
+
+      const options = { day: '2-digit', month: 'long', year: 'numeric' };
+      endDisplay.value = endDate.toLocaleDateString('en-GB', options);
+    } else {
+      endDisplay.value = '';
+    }
+  }
+
+  [startDay, startMonth, startYear, durationInput].forEach(el =>
+    el.addEventListener('change', updateEndDate)
+  );
+  function updateHiddenStartDate() {
+  const d = startDay.value.padStart(2, '0');
+  const m = (parseInt(startMonth.value) + 1).toString().padStart(2, '0');
+  const y = startYear.value;
+  if (d && m && y) {
+    hiddenInput.value = `${y}-${m}-${d}`;
+        }
+      }
+// Run it once on page load too
+window.addEventListener('DOMContentLoaded', updateHiddenStartDate);
+
+</script>
+
+
+<script>
+  const form = document.querySelector('form');
+  const hiddenInput = document.getElementById('start_date_hidden');
+
+  form.addEventListener('submit', function (e) {
+    const d = startDay.value.padStart(2, '0');
+    const m = (parseInt(startMonth.value) + 1).toString().padStart(2, '0'); // JS months are 0-indexed
+    const y = startYear.value;
+    hiddenInput.value = `${y}-${m}-${d}`;
+  });
+</script>
+
+
+</body>
+</html>
+

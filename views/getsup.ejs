@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student & Supervisor Info</title>
+  <link rel="stylesheet" href="/styles.css"> <!-- optional -->
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    .card {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2, h3 {
+      color: #333;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    
+    <div class="section">
+      <h3>🧑‍🏫 Assigned Supervisor</h3>
+      <p><span class="label">Name:</span> <%= profile.sup_full_name %></p>
+      <p><span class="label">Department:</span> <%= profile.department %></p>
+    </div>
+
+  </div>
+</body>
+</html>

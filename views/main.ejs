@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | My App</title>
+    <!-- You can add your stylesheets or links here -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <!-- You can customize the header, e.g. navigation bar -->
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/student-form">Student Form</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+        <h1>Welcome to My App</h1>
+    </header>
+
+    <main>
+        <!-- This is where the page content will be injected from other EJS files -->
+        <%- body %>
+    </main>
+
+    <footer>
+        <!-- Footer content goes here -->
+        <p>&copy; 2025 My Application. All Rights Reserved.</p>
+        <p>Contact us at: <a href="mailto:contact@myapp.com">contact@myapp.com</a></p>
+    </footer>
+
+    <!-- You can include your scripts here -->
+    <script src="/index.js"></script>
+</body>
+</html>
