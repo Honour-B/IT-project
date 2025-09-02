@@ -192,6 +192,10 @@ main {
   cursor: pointer;
 }
 
+main {
+  flex: 1; /* pushes footer down */
+}
+
 /* Footer */
 .footer {
   background-color: #0d1117;
@@ -300,7 +304,7 @@ main {
 <body>
   <!-- Navbar -->
 <div class="navbar-custom">
-  <div><strong>📚 Dashboard</strong></div>
+  <div><strong>📚 E-Log Book</strong></div>
   <div>
     <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
     <a href="/calendar"><i class="fa-solid fa-calendar"></i> Calendar</a>
@@ -322,7 +326,7 @@ main {
   </div>
 </div>
 
-
+<main>
   <!-- Welcome Banner -->
   <div class="container mt-5 text-center">
     <div class="welcome-banner mb-5">
@@ -331,40 +335,37 @@ main {
     </div>
 
     <!-- Log Submission Card -->
-    <div class="card-custom">
-      <h5 class="mb-4 text-start">🟦 Log Entry for: <%= today %></h5>
-
-      <% if (alreadySubmitted) { %>
-        <div class="alert alert-success">✅ You have already submitted your log for today.</div>
-      <% } else { %>
-        <form action="/submit-log" method="POST">
-          <div class="mb-4">
-            <textarea id="log_text" name="log_text" class="form-control log-textarea" placeholder="Write your weekly log here..."></textarea>
-          </div>
-          <input type="hidden" name="imagefiles" id="imagefiles">
-            <button type="button" id="upload_widget" class="btn btn-primary position-relative">
-              📎 Attach Image
-            <span id="image-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-            0
-              </span>
-         </button>
-         <!-- <button type="button" id="upload_widget" class="btn btn-outline-primary mb-3">📎 Attach Images</button> -->
-          <button type="submit" id="submit-log-btn" class="btn btn-submit">Submit Log</button>
-          <div id="image-preview" class="submitted-images mt-3"></div>
-
-        </form>
-      <% } %>
+   <!-- Log Section -->
+<% if (internshipEnded) { %>
+  <div class="card-custom text-center">
+    <div class="alert alert-danger mb-0">
+      🚫 Your internship has ended. You can no longer submit logs.
     </div>
+  </div>
+<% } else { %>
+  <div class="card-custom">
+    <h5 class="mb-4 text-start">🟦 Log Entry for: <%= today %></h5>
 
-    <% if (alreadySubmitted && alreadySubmitted.images && alreadySubmitted.images.length) { %>
-      <div class="submitted-images">
-        <h5>Attached Images:</h5>
-        <% alreadySubmitted.images.forEach(img => { %>
-          <img src="<%= img %>" alt="log image" width="200">
-        <% }) %>
-      </div>
+    <% if (alreadySubmitted) { %>
+      <div class="alert alert-success">✅ You have already submitted your log for today.</div>
+    <% } else { %>
+      <form action="/submit-log" method="POST">
+        <div class="mb-4">
+          <textarea id="log_text" name="log_text" class="form-control log-textarea" placeholder="Write your daily log here..."></textarea>
+        </div>
+        <input type="hidden" name="imagefiles" id="imagefiles">
+        <button type="button" id="upload_widget" class="btn btn-primary position-relative">
+          📎 Attach Image
+          <span id="image-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+        </button>
+        <button type="submit" id="submit-log-btn" class="btn btn-submit">Submit Log</button>
+        <div id="image-preview" class="submitted-images mt-3"></div>
+      </form>
     <% } %>
   </div>
+<% } %>
+
+
 
   <!-- Supervisor Modal -->
   <div id="supervisorModal" class="modal" style="display:none;">
@@ -450,7 +451,7 @@ main {
     }
   });
 </script>
-
+</main>
   <!-- Footer -->
   <footer class="footer mt-auto py-4">
     <div class="container text-center">

@@ -478,7 +478,6 @@ app.post('/setpassword', async (req, res) => {
   }
 });
 
-
 app.get('/setpassword', (req, res) => {
   const matric_num = req.query.matric_num;
   res.render('setpassword', { matric_num, error: null });
@@ -517,33 +516,93 @@ app.post('/login', async (req, res) => {
 });
 
 //DASHBOARD
-app.get('/submit-log', async (req, res) => {
+// app.get('/submit-log', async (req, res) => {
 
+//   if (!req.session.matric_num) {
+//     return res.redirect('/login');
+//   }
+//   const today = new Date().toDateString();
+//   const matric_num = req.session.matric_num;
+//   //   res.render('log1', {matric_num: matric_num, today: today})
+//   console.log(matric_num, today);
+
+
+//   try {
+//     const result = await client.query(
+//       'SELECT * FROM student_log WHERE matric_num = $1 AND date = $2',
+//       [matric_num, today]
+//     );
+
+//     const alreadySubmitted = result.rows.length > 0;
+//     const submittedLog = result.rows[0];
+//     res.render('log2', {
+//       matric_num,
+//       today,
+//       alreadySubmitted,
+//       submittedLog: !!submittedLog,  // boolean for EJS conditional
+//        submittedLog: submittedLog || { images: [] },
+//       messages: req.flash()
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.send('Error loading log page');
+//   }
+// });
+
+app.get('/submit-log', async (req, res) => {
   if (!req.session.matric_num) {
     return res.redirect('/login');
   }
-  const today = new Date().toDateString();
-  const matric_num = req.session.matric_num;
-  //   res.render('log1', {matric_num: matric_num, today: today})
-  console.log(matric_num, today);
 
+  const today = new Date();
+  const todayStr = today.toDateString();
+  const matric_num = req.session.matric_num;
+  console.log(matric_num, todayStr);
 
   try {
+    // 🔹 Get internship dates
+    const studentResult = await client.query(
+      'SELECT start_date, end_date FROM student WHERE matric_num = $1',
+      [matric_num]
+    );
+
+    if (studentResult.rows.length === 0) {
+      req.flash('error', 'Student not found.');
+      return res.redirect('/login');
+    }
+
+    const { start_date, end_date } = studentResult.rows[0];
+
+    // 🔹 Check if internship has ended
+    if (end_date && today > end_date) {
+      return res.render('log2', {
+        matric_num,
+        today: todayStr,
+        alreadySubmitted: false,
+        submittedLog: null,
+        internshipEnded: true,   // ✅ flag for EJS
+        messages: req.flash()
+      });
+    }
+
+    // 🔹 Otherwise, fetch today’s log
     const result = await client.query(
       'SELECT * FROM student_log WHERE matric_num = $1 AND date = $2',
-      [matric_num, today]
+      [matric_num, todayStr]
     );
 
     const alreadySubmitted = result.rows.length > 0;
-    const submittedLog = result.rows[0];
+    const submittedLog = result.rows[0] || { images: [] };
+
     res.render('log2', {
       matric_num,
-      today,
+      today: todayStr,
       alreadySubmitted,
-      submittedLog: !!submittedLog,  // boolean for EJS conditional
-       submittedLog: submittedLog || { images: [] },
+      submittedLog,
+      internshipEnded: false,   // still active
       messages: req.flash()
     });
+
   } catch (err) {
     console.error(err);
     res.send('Error loading log page');
@@ -956,7 +1015,6 @@ app.get('/change-password', (req, res) => {
   }
   res.render('changepassword', { error: null, message: null });
 });
-
 
 app.post('/change-password', async (req, res) => {
   if (!req.session.otpVerified) {
