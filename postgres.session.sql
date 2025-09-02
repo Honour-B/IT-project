@@ -1,9 +1,16 @@
--- ALTER TABLE student
--- ADD COLUMN it_duration INTEGER CHECK (it_duration BETWEEN 1 AND 6),
--- ADD COLUMN start_date DATE,
--- ADD COLUMN end_date DATE;
+-- ALTER TABLE student_log
+-- ADD COLUMN sup_remark TEXT;
+-- INSERT INTO student_log (sup_remark)
+-- VALUES ('Your Logs are dog shit');
+-- where matric_num
 
-al
+-- UPDATE student_log
+-- set sup_remark = 'Your logs are dog shit';
 
-select * FROM student
-ORDER BY student_id DESC
+-- select * FROM supervisors
+-- ORDER BY student_id DESC
+
+-- UPDATE student set supervisors_id = '109'
+-- where matric_num = 'a123456'
+
+SELECT * FROM student

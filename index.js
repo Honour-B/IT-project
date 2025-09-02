@@ -56,6 +56,100 @@ const storage = multer.diskStorage({
   }
 });
 
+const facultyDepartments = {
+  Science: [
+    "Computer Science",
+    "Mathematics",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "Geology",
+    "Statistics",
+    "Environmental Science"
+  ],
+  Engineering: [
+    "Electrical Engineering",
+    "Mechanical Engineering",
+    "Civil Engineering",
+    "Chemical Engineering",
+    "Computer Engineering",
+    "Petroleum Engineering",
+    "Industrial Engineering",
+    "Agricultural Engineering"
+  ],
+  Arts: [
+    "History",
+    "Languages",
+    "Philosophy",
+    "Theatre Arts",
+    "Religious Studies",
+    "Linguistics",
+    "Literature",
+    "Performing Arts"
+  ],
+  SocialSciences: [
+    "Economics",
+    "Political Science",
+    "Sociology",
+    "Psychology",
+    "Anthropology",
+    "International Relations",
+    "Geography",
+    "Mass Communication"
+  ],
+  Education: [
+    "Education",
+    "Educational Management",
+    "Guidance and Counseling",
+    "Adult Education",
+    "Physical Education",
+    "Special Education",
+    "Science Education",
+    "Arts Education"
+  ],
+  Law: [
+    "Law"
+  ],
+  ManagementSciences: [
+    "Accounting",
+    "Business Administration",
+    "Marketing",
+    "Finance",
+    "Banking and Finance",
+    "Management",
+    "Human Resource Management",
+    "Insurance"
+  ],
+  Medicine: [
+    "Medicine",
+    "Nursing",
+    "Pharmacy",
+    "Anatomy",
+    "Physiology",
+    "Medical Laboratory Science",
+    "Public Health",
+    "Radiography"
+  ],
+  Agriculture: [
+    "Agriculture",
+    "Agricultural Economics",
+    "Animal Science",
+    "Crop Science",
+    "Fisheries",
+    "Forestry",
+    "Soil Science",
+    "Horticulture"
+  ],
+  EnvironmentalStudies: [
+    "Architecture",
+    "Urban and Regional Planning",
+    "Estate Management",
+    "Surveying and Geoinformatics",
+    "Quantity Surveying",
+    "Building Technology"
+  ]
+};
+
 const app = express();
 
 app.post('/upload-image', upload.array('file'), async(req, res) => {
@@ -111,6 +205,7 @@ app.use((err, req, res, next) => {
 
 app.get('/student-form', (req, res) => {
   res.render('student-form', {
+    facultyDepartments,
     oldInput: {},     // define oldInput even if empty
     errors: {}
   })
@@ -123,8 +218,13 @@ app.post('/student-form',
     body('matric_num').matches(/^[a-zA-Z0-9\+]{5,15}$/).withMessage('Matric number is required'),
     body('full_name').matches(/^[a-zA-Z\s]{3,50}$/).withMessage('Full name is required'),
     body('level').isIn(['100', '200', '300', '400', '500', '600']).withMessage('Level must be one of 100, 200, 300, 400, 500, or 600'),
-    body('department').matches(/^[a-zA-Z\s,]{3,50}$/).withMessage('Department is required'),
-    body('faculty').matches(/^[a-zA-Z\s+]{3,50}$/).withMessage('Faculty is required'),
+    body('faculty').isIn(Object.keys(facultyDepartments)).withMessage('Invalid faculty'),
+    body('department').custom((value, { req }) => {
+      if (!facultyDepartments[req.body.faculty].includes(value)) {
+        throw new Error('Invalid department for selected faculty');
+      }
+      return true;
+    }),
     body('school').matches(/^[a-zA-Z\s+]{3,50}$/).withMessage('School is required'),
     body('work_address').matches(/^[a-zA-Z0-9\s.,-]{5,100}$/).withMessage('Work address is required'),
     body('phone_num').matches(/^\+?[0-9]{10,12}$/).withMessage('Phone number must be 10 to 12 digits and may start with +'),
@@ -139,7 +239,7 @@ app.post('/student-form',
 //     oldInput: req.body,
 //   });
 // }
-
+      
     const { matric_num, full_name, level, department, faculty, school, work_address, phone_num, email, it_duration, start_date} = req.body;
     const startDateObj = new Date(start_date);
     const endDateObj = new Date(startDateObj);  
@@ -157,7 +257,6 @@ app.post('/student-form',
        return res.status(500).send('Database error occurred: ' + err.message);
         }
 })
-
 
 app.get('/getData', (req, res) => {
   const get_query = "Select * from student"
@@ -1062,6 +1161,10 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
   });
 });
+
+app.get('/', (req, res) => {
+  res.render('loginpage');
+})
 
 app.listen(5000, () => {
   console.log("Good Job")

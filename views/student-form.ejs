@@ -143,18 +143,28 @@ textarea:focus {
           <div class="error"><%= errors?.level || '' %></div>
         </div>
 
-        <div class="mb-3 col-md-4">
-          <label for="department" class="form-label">Department</label>
-          <input type="text" class="form-control" id="department" name="department" value="<%= oldInput?.department || '' %>" required>
-          <div class="error"><%= errors?.department || '' %></div>
-        </div>
+         <div class="mb-3">
+            <label for="faculty" class="form-label">Faculty</label>
+            <select class="form-select" id="faculty" name="faculty" required>
+             <option value="">-- Select Faculty --</option>
+              <% Object.keys(facultyDepartments).forEach(f => { %>
+              <option value="<%= f %>" <%= oldInput?.faculty === f ? 'selected' : '' %>><%= f %></option>
+              <% }) %>
+            </select>
+          </div>
 
-        <div class="mb-3 col-md-4">
-          <label for="faculty" class="form-label">Faculty</label>
-          <input type="text" class="form-control" id="faculty" name="faculty" value="<%= oldInput?.faculty || '' %>" required>
-          <div class="error"><%= errors?.faculty || '' %></div>
-        </div>
-      </div>
+          <div class="mb-3">
+            <label for="department" class="form-label">Department</label>
+            <select class="form-select" id="department" name="department" required>
+              <option value="">-- Select Department --</option>
+              <% if (oldInput?.faculty && facultyDepartments[oldInput.faculty]) { %>
+                <% facultyDepartments[oldInput.faculty].forEach(d => { %>
+                  <option value="<%= d %>" <%= oldInput?.department === d ? 'selected' : '' %>><%= d %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+
 
       <div class="mb-3">
         <label for="school" class="form-label">School</label>
@@ -297,6 +307,46 @@ window.addEventListener('DOMContentLoaded', updateHiddenStartDate);
     const m = (parseInt(startMonth.value) + 1).toString().padStart(2, '0'); // JS months are 0-indexed
     const y = startYear.value;
     hiddenInput.value = `${y}-${m}-${d}`;
+  });
+</script>
+
+<script>
+  const facultyDepartments = {
+    "Arts": ["English", "History & International Studies", "Philosophy", "Theatre Arts"],
+    "Social Sciences": ["Economics", "Political Science", "Sociology", "Psychology"],
+    "Management Sciences": ["Accounting", "Business Administration", "Banking & Finance", "Marketing"],
+    "Sciences": ["Mathematics", "Computer Science", "Physics", "Biology", "Chemistry"],
+    "Engineering": ["Civil Engineering", "Mechanical Engineering", "Electrical Engineering", "Computer Engineering"],
+    "Medicine": ["Medicine & Surgery", "Anatomy", "Physiology", "Nursing Science"],
+    "Law": ["Public Law", "Private Law", "Commercial Law"]
+  };
+</script>
+
+<script>
+  
+  const facultySelect = document.getElementById('faculty');
+  const deptSelect = document.getElementById('department');
+
+  function loadDepartments(selectedFaculty, oldDepartment = "") {
+    deptSelect.innerHTML = '<option value="">-- Select Department --</option>';
+    if (selectedFaculty && facultyDepartments[selectedFaculty]) {
+      facultyDepartments[selectedFaculty].forEach(dep => {
+        const option = document.createElement('option');
+        option.value = dep;
+        option.textContent = dep;
+        if (dep === oldDepartment) option.selected = true;
+        deptSelect.appendChild(option);
+      });
+    }
+  }
+
+  facultySelect.addEventListener('change', () => {
+    loadDepartments(facultySelect.value);
+  });
+
+  // Pre-fill department if editing or form has errors
+  window.addEventListener('DOMContentLoaded', () => {
+    loadDepartments("<%= oldInput?.faculty || '' %>", "<%= oldInput?.department || '' %>");
   });
 </script>
 

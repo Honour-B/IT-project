@@ -163,11 +163,16 @@
         <div class="log-card">
           <div class="log-header">
             <strong>Log #<%= index + 1 %></strong>
-            <span><i class="fas fa-calendar-alt"></i> <%= log.date %></span>
+            <span><i class="fas fa-calendar-alt"></i> <%= new Date(log.date).toDateString() %></span>
           </div>
           <div class="log-body">
             <%= log.log_text %>
           </div>
+          <div class="log-body mt-2">
+              <strong>Supervisor's Remark:</strong><br>
+              <%- log.sup_remark ? log.sup_remark : "<em>No remark yet</em>" %>
+          </div>
+
           <div class="log-footer">
             <span><i class="fas fa-id-badge"></i> <%= log.matric_num %></span>
            <%
@@ -184,7 +189,7 @@
   weekEnd.setHours(0, 0, 0, 0);
 
   const isCurrentWeek = logDate >= weekStart && logDate <= weekEnd;
-%>
+      %>
 
 <% if (isCurrentWeek) { %>
   <a href="/edit-log/<%= log.log_id %>" class="edit-btn">
@@ -214,7 +219,7 @@
         <% } %>
       </div>
     </div>
-  <
+  
     </div>
   <% } else { %>
     <div class="no-logs">
