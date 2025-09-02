@@ -135,13 +135,20 @@ textarea:focus {
       </div>
 
       <!-- INSTITUTION SECTION -->
-      <h4 class="section-title">🏫 Institution Details</h4>
-      <div class="row">
-        <div class="mb-3 col-md-4">
-          <label for="level" class="form-label">Level</label>
-          <input type="number" class="form-control" id="level" name="level" value="<%= oldInput?.level || '' %>" required>
-          <div class="error"><%= errors?.level || '' %></div>
-        </div>
+   <div class="mb-3 col-md-4">
+  <label for="level" class="form-label">Level</label>
+  <select class="form-control" id="level" name="level" required>
+    <option value="">-- Select Level --</option>
+    <option value="100" <%= oldInput?.level === '100' ? 'selected' : '' %>>100</option>
+    <option value="200" <%= oldInput?.level === '200' ? 'selected' : '' %>>200</option>
+    <option value="300" <%= oldInput?.level === '300' ? 'selected' : '' %>>300</option>
+    <option value="400" <%= oldInput?.level === '400' ? 'selected' : '' %>>400</option>
+    <option value="500" <%= oldInput?.level === '500' ? 'selected' : '' %>>500</option>
+    <option value="600" <%= oldInput?.level === '600' ? 'selected' : '' %>>600</option>
+  </select>
+  <div class="error"><%= errors?.level?.msg || '' %></div>
+</div>
+
 
          <div class="mb-3">
             <label for="faculty" class="form-label">Faculty</label>
@@ -310,20 +317,11 @@ window.addEventListener('DOMContentLoaded', updateHiddenStartDate);
   });
 </script>
 
-<script>
-  const facultyDepartments = {
-    "Arts": ["English", "History & International Studies", "Philosophy", "Theatre Arts"],
-    "Social Sciences": ["Economics", "Political Science", "Sociology", "Psychology"],
-    "Management Sciences": ["Accounting", "Business Administration", "Banking & Finance", "Marketing"],
-    "Sciences": ["Mathematics", "Computer Science", "Physics", "Biology", "Chemistry"],
-    "Engineering": ["Civil Engineering", "Mechanical Engineering", "Electrical Engineering", "Computer Engineering"],
-    "Medicine": ["Medicine & Surgery", "Anatomy", "Physiology", "Nursing Science"],
-    "Law": ["Public Law", "Private Law", "Commercial Law"]
-  };
 </script>
 
 <script>
-  
+  const facultyDepartments =  <%- JSON.stringify(facultyDepartments) %>;
+console.log(facultyDepartments)
   const facultySelect = document.getElementById('faculty');
   const deptSelect = document.getElementById('department');
 
