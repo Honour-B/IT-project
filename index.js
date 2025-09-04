@@ -516,38 +516,6 @@ app.post('/login', async (req, res) => {
 });
 
 //DASHBOARD
-// app.get('/submit-log', async (req, res) => {
-
-//   if (!req.session.matric_num) {
-//     return res.redirect('/login');
-//   }
-//   const today = new Date().toDateString();
-//   const matric_num = req.session.matric_num;
-//   //   res.render('log1', {matric_num: matric_num, today: today})
-//   console.log(matric_num, today);
-
-
-//   try {
-//     const result = await client.query(
-//       'SELECT * FROM student_log WHERE matric_num = $1 AND date = $2',
-//       [matric_num, today]
-//     );
-
-//     const alreadySubmitted = result.rows.length > 0;
-//     const submittedLog = result.rows[0];
-//     res.render('log2', {
-//       matric_num,
-//       today,
-//       alreadySubmitted,
-//       submittedLog: !!submittedLog,  // boolean for EJS conditional
-//        submittedLog: submittedLog || { images: [] },
-//       messages: req.flash()
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.send('Error loading log page');
-//   }
-// });
 
 app.get('/submit-log', async (req, res) => {
   if (!req.session.matric_num) {
@@ -720,26 +688,101 @@ app.get('/calendar', async (req, res) => {
   }
 });
 
-app.get('/view-logs', async (req, res) => {
-  if (!req.session.matric_num) {
-    return res.redirect('/login');
+// Helper function to group logs by week
+function groupLogsByWeek(logs) {
+  const grouped = {};
+
+  logs.forEach(log => {
+    const d = new Date(log.date);
+    d.setHours(0, 0, 0, 0);
+
+    // Align to Monday
+    const day = d.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    const diff = (day === 0 ? -6 : 1 - day); 
+    d.setDate(d.getDate() + diff);
+
+    const weekKey = d.toDateString(); // <-- use toDateString()
+    if (!grouped[weekKey]) grouped[weekKey] = [];
+    grouped[weekKey].push(log);
+  });
+
+  return grouped;
+}
+
+function generateWeeks(startDate, durationMonths) {
+  const weeks = [];
+  const start = new Date(startDate);
+
+  // Align start to Monday
+  const day = start.getDay();
+  if (day !== 1) {
+    const diff = (day === 0 ? -6 : 1 - day);
+    start.setDate(start.getDate() + diff);
   }
 
-  const matric_num = req.session.matric_num;
-  const page = parseInt(req.query.page) || 1; // page number, default to 1
-  const limit = 10; // logs per page
-  const offset = (page - 1) * limit;
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + durationMonths);
 
-  const totalCountResult = await client.query('SELECT COUNT(*) FROM student_log WHERE matric_num = $1', [matric_num]);
-  const totalCount = parseInt(totalCountResult.rows[0].count);
+  let current = new Date(start);
+  while (current <= end) {
+    weeks.push(new Date(current));
+    current.setDate(current.getDate() + 7);
+  }
+  return weeks;
+}
 
+app.get("/view-logs", async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM student_log WHERE matric_num = $1 order by date desc limit $2 offset $3', [matric_num, limit, offset]);
-    const totalPages = Math.ceil(totalCount / limit);
-    res.render('view-logs', { logs: result.rows, matric_num: matric_num, currentPage: page, totalPages, });
+    const { matric_num } = req.session;
+    const page = parseInt(req.query.page) || 1;
+    const weeksPerPage = 4;
+
+    const studentResult = await client.query(
+      "SELECT start_date, it_duration FROM student WHERE matric_num = $1",
+      [matric_num]
+    );
+    if (studentResult.rows.length === 0) return res.status(404).send("Student not found");
+
+    const student = studentResult.rows[0];
+    const durationMonths = parseInt(student.it_duration, 10);
+
+    const allWeeksRaw = generateWeeks(new Date(student.start_date), durationMonths); // array of weekStart dates
+    const logsResult = await client.query(
+      "SELECT * FROM student_log WHERE matric_num = $1 ORDER BY date ASC",
+      [matric_num]
+    );
+    const logs = logsResult.rows;
+    const logMap = groupLogsByWeek(logs);
+
+    // Pagination
+    const totalPages = Math.ceil(allWeeksRaw.length / weeksPerPage);
+    const startIdx = (page - 1) * weeksPerPage;
+    const paginatedWeeksRaw = allWeeksRaw.slice(startIdx, startIdx + weeksPerPage);
+
+    const today = new Date();
+    const itStartDate = new Date(student.start_date);
+
+    // Build array of week objects with start, end, isCurrentWeek
+    const allWeeks = paginatedWeeksRaw.map((weekStart) => {
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 5); // Mon → Sat
+      const isCurrentWeek = today >= weekStart && today <= weekEnd;
+      return { start: weekStart, end: weekEnd, isCurrentWeek };
+    });
+
+    res.render("view-logs", {
+      matric_num,
+      allWeeks,
+      logMap,
+      currentPage: page,
+      totalPages,
+      today,
+      itStartDate
+    });
+
   } catch (err) {
-    console.error('Error fetching logs:', err);
-    res.status(500).send('Something went wrong.');
+    console.error("Error fetching logs:", err);
+    res.status(500).send("Error fetching logs.");
   }
 });
 

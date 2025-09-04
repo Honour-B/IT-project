@@ -1,231 +1,141 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>View Logs</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f8fafc;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 30px;
-      margin: 0;
-    }
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>View Logs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+      body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', sans-serif;
+        padding: 30px;
+        margin: 0;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .header h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #1e3a8a;
+      }
+      .btn-home {
+        background-color: #0d6efd;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        margin-bottom: 20px;
+        display: inline-block;
+      }
+      .btn-home:hover { background-color: #084298; }
+      .week-section {
+        margin-bottom: 40px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      }
+      .week-section h5 { font-weight: 600; margin-bottom: 20px; color: #1e3a8a; }
+      .log-row { display: flex; gap: 20px; flex-wrap: wrap; }
+      .log-card {
+        flex: 1; min-width: 220px; max-width: 280px;
+        background: #f9fafb; border-radius: 10px;
+        padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      }
+      .log-body { font-size: 0.95rem; color: #374151; white-space: pre-wrap; }
+      .edit-btn { background-color: #1e40af; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 14px; }
+      .edit-btn:hover { background-color: #1e3a8a; }
+      .edit-disabled { color: #9ca3af; cursor: not-allowed; padding-left: 10px; }
+      .pagination { display: flex; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+      .page-btn { background-color: #007bff; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 500; }
+      .page-btn:hover { background-color: #0056b3; transform: scale(1.05); }
+    </style>
+  </head>
+  <body>
 
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
+    <div class="header">
+      <h1>📄 Logs for <%= matric_num %></h1>
+      <p>Your submitted internship logs are displayed below.</p>
+    </div>
 
-    .header h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      color: #1e3a8a;
-    }
+    <div class="text-center mb-4">
+      <a href="/submit-log" class="btn-home">
+        <i class="fas fa-arrow-left"></i> Home
+      </a>
+    </div>
+<% allWeeks.forEach((week) => {
+    const weekStart = new Date(week.start);
+    const weekEnd = new Date(week.end);
+    const key = weekStart.toDateString();
+    const logs = logMap[key] || [];
 
-    .header p {
-      font-size: 1rem;
-      color: #6c757d;
-    }
-
-    .btn-home {
-      background-color: #0d6efd;
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: 500;
-      text-decoration: none;
-      display: inline-block;
-      margin-bottom: 20px;
-    }
-
-    .btn-home:hover {
-      background-color: #084298;
-    }
-
-    .log-card {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-      margin-bottom: 20px;
-      padding: 20px;
-      transition: transform 0.2s ease;
-    }
-
-    .log-card:hover {
-      transform: scale(1.01);
-    }
-
-    .log-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 1rem;
-      margin-bottom: 10px;
-    }
-
-    .log-body {
-      font-size: 0.95rem;
-      color: #374151;
-      white-space: pre-wrap;
-    }
-
-    .log-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      font-size: 0.875rem;
-      color: #6b7280;
-    }
-
-    .edit-btn {
-      background-color: #1e40af;
-      color: white;
-      padding: 6px 14px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .edit-btn:hover {
-      background-color: #1e3a8a;
-    }
-
-    .no-logs {
-      text-align: center;
-      margin-top: 50px;
-      color: #6c757d;
-    }
-    .pagination {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
+ const itStart = new Date(itStartDate);
+const startDay = itStart.getDay();
+if (startDay !== 1) {
+  const diff = (startDay === 0 ? -6 : 1 - startDay);
+  itStart.setDate(itStart.getDate() + diff); // align to Monday
 }
+const weekNumber = Math.floor((weekStart - itStart) / (7 * 24 * 60 * 60 * 1000)) + 1;
 
-.page-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+%>
 
-.page-btn:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
+<div class="week-section">
+  <h5>Week <%= weekNumber %>: <%= weekStart.toDateString() %> - <%= weekEnd.toDateString() %></h5>
 
-.page-btn:disabled,
-.page-btn[disabled] {
-  background-color: #cccccc;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-.edit-disabled {
-  color: #9ca3af;
-  cursor: not-allowed;
-  padding-left: 10px;
-}
-.no-images {
-  font-size: 0.9rem;
-  color: #888;
-}
-
-.log-images img {
-  box-shadow: 0 0 4px rgba(0,0,0,0.3);
-}
-
-
-  </style>
-</head>
-<body>
-
-  <div class="header">
-    <h1>📄 Logs for <%= matric_num %></h1>
-    <p>Your submitted internship logs are displayed below.</p>
-  </div>
-
-  <div class="text-center mb-4">
-    <a href="/submit-log" class="btn-home">
-      <i class="fas fa-arrow-left"></i> Home
-    </a>
-  </div>
-
-  <% if (logs && logs.length > 0) { %>
-    <div class="container">
-      <% logs.forEach((log, index) => { %>
-        <div class="log-card">
-          <div class="log-header">
-            <strong>Log #<%= index + 1 %></strong>
-            <span><i class="fas fa-calendar-alt"></i> <%= new Date(log.date).toDateString() %></span>
-          </div>
-          <div class="log-body">
-            <%= log.log_text %>
-          </div>
-          <div class="log-body mt-2">
-              <strong>Supervisor's Remark:</strong><br>
-              <%- log.sup_remark ? log.sup_remark : "<em>No remark yet</em>" %>
-          </div>
-
-          <div class="log-footer">
-            <span><i class="fas fa-id-badge"></i> <%= log.matric_num %></span>
-           <%
-  const logDate = new Date(log.date);
-  const today = new Date();
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - today.getDay()); // Sunday
-
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6); // Saturday
-
-  logDate.setHours(0, 0, 0, 0);
-  weekStart.setHours(0, 0, 0, 0);
-  weekEnd.setHours(0, 0, 0, 0);
-
-  const isCurrentWeek = logDate >= weekStart && logDate <= weekEnd;
+  <% if (logs.length > 0) { %>
+    <div class="log-row">
+      <% logs.forEach(log => {
+          const logDate = new Date(log.date);
+          const isPastDay = logDate < today;
+          const canEdit = week.isCurrentWeek && isPastDay;
       %>
+        <div class="log-card">
+          <strong><%= logDate.toDateString() %></strong>
+          <p class="log-body"><%= log.log_text %></p>
 
-<% if (isCurrentWeek) { %>
-  <a href="/edit-log/<%= log.log_id %>" class="edit-btn">
-    <i class="fas fa-pen-to-square"></i> Edit
-  </a>
-<% } else { %>
-  <span class="edit-disabled" title="You can't edit logs from previous weeks">
-    <i class="fas fa-lock"></i>
-  </span>
-<% } %>
+          <div class="mt-2">
+            <strong>Supervisor's Remark:</strong><br>
+            <%- log.sup_remark ? log.sup_remark : "<em>No remark yet</em>" %>
+          </div>
 
+          <div class="mt-2">
+            <% if (canEdit) { %>
+              <a href="/edit-log/<%= log.id %>" class="edit-btn"><i class="fas fa-edit"></i> Edit</a>
+            <% } else { %>
+              <span class="edit-disabled"><i class="fas fa-lock"></i> Edit</span>
+            <% } %>
           </div>
         </div>
       <% }) %>
-
-
-        <!-- Pagination Controls -->
-      <div class="pagination">
-        <% if (currentPage > 1) { %>
-          <a href="?page=<%= currentPage - 1 %>" class="page-btn">← Previous</a>
-        <% } %>
-
-        <span class="page-info">Page <%= currentPage %> of <%= totalPages %></span>
-
-        <% if (currentPage < totalPages) { %>
-          <a href="?page=<%= currentPage + 1 %>" class="page-btn">Next →</a>
-        <% } %>
-      </div>
-    </div>
-  
     </div>
   <% } else { %>
-    <div class="no-logs">
-      <p><i class="fas fa-info-circle"></i> No logs available.</p>
-    </div>
+    <p class="text-muted"><i>No logs submitted for this week.</i></p>
+  <% } %>
+</div>
+
+<% }) %>
+
+
+<!-- Pagination OUTSIDE the week loop -->
+<div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a href="/view-logs?page=<%= currentPage - 1 %>" class="page-btn">&laquo; Prev</a>
   <% } %>
 
-</body>
-</html>
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="/view-logs?page=<%= i %>" class="page-btn <%= i === currentPage ? 'fw-bold' : '' %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <% if (currentPage < totalPages) { %>
+    <a href="/view-logs?page=<%= currentPage + 1 %>" class="page-btn">Next &raquo;</a>
+  <% } %>
+</div>
+
+  
+  </body>
+  </html>
