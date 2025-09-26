@@ -149,6 +149,7 @@ const facultyDepartments = {
     "Building Technology"
   ]
 };
+const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 
@@ -197,7 +198,9 @@ app.use(flash());
 app.use(express.static('public')); // Must be in your server setup
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 // Configure where uploaded files go
-
+app.set('view engine', 'ejs');
+// app.use(expressLayouts);
+// app.set('layout', 'layout');
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).send('Something went wrong!');
@@ -207,7 +210,8 @@ app.get('/student-form', (req, res) => {
   res.render('student-form', {
     facultyDepartments,
     oldInput: {},     // define oldInput even if empty
-    errors: {}
+    errors: {},
+     layout : false
   })
 
 });
@@ -387,7 +391,8 @@ app.get('/request-otp', (req, res) => {
     matric_num,
     email,
     error: null,
-    message: null
+    message: null,
+     layout : false
   })
 });
 
@@ -408,7 +413,7 @@ app.post('/send-otp', async (req, res) => {
       text: `Your OTP is ${otp}. It expires in 10 minutes.`
     });
 
-    res.render('emailverification', { matric_num, email, error: null, message: "OTP sent to your email" });
+    res.render('emailverification', { matric_num, email, error: null, message: "OTP sent to your email",  layout : false });
   } catch (err) {
     console.error('Error sending OTP:', err);
     res.status(500).send("Failed to send OTP.")
@@ -418,7 +423,7 @@ app.post('/send-otp', async (req, res) => {
 app.get('/verify-otp', (req, res) => {
   const { matric_num } = req.query;
   const email = req.query.email;
-  res.render('emailverification', { matric_num, email, error: null });
+  res.render('emailverification', { matric_num, email, error: null,  layout : false });
 });
 
 // POST route to verify OTP
@@ -436,7 +441,7 @@ app.post('/verify-otp', async (req, res) => {
     const student = result.rows[0];
 
     if (!student) {
-      return res.render('emailverification', { matric_num, email, error: 'No record found.' });
+      return res.render('emailverification', { matric_num, email, error: 'No record found.',  layout : false });
     }
 
     const dbOtp = String(student.otp).trim();
@@ -444,7 +449,7 @@ app.post('/verify-otp', async (req, res) => {
     console.log("DB OTP:", dbOtp, "| Submitted OTP:", submittedOtp);
 
     if (dbOtp !== submittedOtp) {
-      return res.render('emailverification', { matric_num, email, error: 'Invalid OTP' });
+      return res.render('emailverification', { matric_num, email, error: 'Invalid OTP',  layout : false });
     }
 
     await client.query(
@@ -464,7 +469,7 @@ app.post('/setpassword', async (req, res) => {
   const { matric_num, password, confirm_password } = req.body;
 
   if (password !== confirm_password) {
-    return res.render('setpassword', { matric_num, error: "Passwords do not match" });
+    return res.render('setpassword', { matric_num, error: "Passwords do not match",  layout : false });
   }
 
   try {
@@ -485,7 +490,7 @@ app.get('/setpassword', (req, res) => {
 
 //LOGIN
 app.get('/login', (req, res) => {
-  res.render('loginpage', { error: null });
+  res.render('loginpage', { layout: false, error: null });
 });
 
 app.post('/login', async (req, res) => {
@@ -496,12 +501,12 @@ app.post('/login', async (req, res) => {
     const user = result.rows[0];
 
     if (!user) {
-      return res.render('loginpage', { error: 'Invalid matric number or password' });
+      return res.render('loginpage', { error: 'Invalid matric number or password',  layout : false });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return res.render('loginpage', { error: 'Invalid matric number or password' });
+      return res.render('loginpage', { error: 'Invalid matric number or password',  layout : false });
     }
 
     req.session.matric_num = matric;
@@ -811,7 +816,7 @@ app.get('/edit-log/:log_id', async (req, res) => {
   }
 });
 
-app.post('/edit-log', async (req, res) => {
+app.post('/edit-log/:log_id', async (req, res) => {
   const log_id = req.body.log_id;
   console.log(log_id)
   const log_text = req.body.log_text;
@@ -838,8 +843,28 @@ app.get('/edit-new-log', async (req, res) => {
 
   const matric_num = req.session.matric_num;
 
-  try {
-    const result = await client.query('SELECT * FROM student_log WHERE matric_num = $1 ORDER BY log_id DESC LIMIT 1', [matric_num]);
+   try {
+    // 1️⃣ Get student IT duration
+    const studentRes = await client.query(
+      'SELECT start_date, end_date FROM student WHERE matric_num = $1',
+      [matric_num]
+    );
+
+    if (studentRes.rows.length === 0) {
+      return res.status(404).send('Student not found');
+    }
+
+    const { start_date, end_date } = studentRes.rows[0];
+    const today = new Date();
+    const endDate = new Date(end_date);
+
+    const isFinished = today > endDate;
+
+    // 2️⃣ Get latest log
+    const result = await client.query(
+      'SELECT * FROM student_log WHERE matric_num = $1 ORDER BY log_id DESC LIMIT 1',
+      [matric_num]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).send('No logs found');
@@ -847,9 +872,9 @@ app.get('/edit-new-log', async (req, res) => {
 
     const log = result.rows[0];
 
-    res.render('edit1_log', { log });
-  } 
-  catch (err) {
+    // 3️⃣ Pass `isFinished` to template
+    res.render('edit1_log', { log, isFinished });
+  } catch (err) {
     console.error('Error fetching recent log:', err);
     res.status(500).send('Something went wrong.');
   }
@@ -857,18 +882,34 @@ app.get('/edit-new-log', async (req, res) => {
 
 app.post('/edit-new-log', async (req, res) => {
   const matric_num = req.session.matric_num;
-  const updatedContent = req.body.log;
-  const imagefiles = req.body.imagefiles || '[]'; // Ensure imagefiles is always a string
-  const images = JSON.parse(imagefiles || '[]');
-
-  if (!log_text || log_text.trim() === '') {
-    return res.status(400).send('Log text cannot be empty');
-  }
 
   try {
-    await updateLogById(req.params.id, updatedContent); client.query('UPDATE student_log SET log_text = $1, images = $2  WHERE matric_num = $2', [log_text, images, matric_num]);
+    // Check if IT has ended
+    const studentRes = await client.query(
+      'SELECT end_date FROM student WHERE matric_num = $1',
+      [matric_num]
+    );
+
+    const endDate = new Date(studentRes.rows[0].end_date);
+    if (new Date() > endDate) {
+      return res.render('edit1_log', { log,
+    errorMessage: 'Your IT has ended. You cannot edit logs anymore.'
+  });
+    }
+
+    const { log_id, log_text, imagefiles } = req.body;
+    const images = JSON.parse(imagefiles || '[]');
+
+    if (!log_text || log_text.trim() === '') {
+      return res.status(400).send('Log text cannot be empty');
+    }
+
+    await client.query(
+      'UPDATE student_log SET log_text = $1, images = $2 WHERE log_id = $3 AND matric_num = $4',
+      [log_text, images, log_id, matric_num]
+    );
+
     res.redirect('/view-logs');
- 
   } catch (err) {
     console.error('Error updating recent log:', err);
     res.status(500).send('Something went wrong.');
@@ -1020,7 +1061,7 @@ app.get('/verifyotp', async(req, res) => {
     console.error(err);
     res.status(500).send('Error sending OTP or fetching student data');
   }
-  res.render('verifyotp', { matric_num, email, message: null , error: null });
+  res.render('verifyotp', { matric_num, email, message: null , error: null,  layout : false });
 })
 
 app.post('/verifyotp', async (req, res) => {
@@ -1039,7 +1080,7 @@ app.post('/verifyotp', async (req, res) => {
       result.rows[0].otp !== otp ||
       new Date(result.rows[0].otp_expires) < new Date()
     ) {
-      return res.render('verifyotp', { error: 'Invalid or expired OTP' });
+      return res.render('verifyotp', { error: 'Invalid or expired OTP',  layout : false });
     }
 
     // OTP is valid, mark verified
@@ -1048,7 +1089,7 @@ app.post('/verifyotp', async (req, res) => {
     res.redirect('/change-password');
   } catch (err) {
     console.error(err);
-    res.render('verifyotp', { message: null, error: 'Error verifying OTP' });
+    res.render('verifyotp', { message: null, error: 'Error verifying OTP',  layout : false });
   }
 });
 
@@ -1056,7 +1097,7 @@ app.get('/change-password', (req, res) => {
   if (!req.session.otpVerified) {
     return res.redirect('/verifyotp');
   }
-  res.render('changepassword', { error: null, message: null });
+  res.render('changepassword', { error: null, message: null,  layout : false });
 });
 
 app.post('/change-password', async (req, res) => {
@@ -1083,7 +1124,7 @@ app.post('/change-password', async (req, res) => {
     res.redirect('submit-log');
   } catch (err) {
     console.error(err);
-    res.render('changepassword', { error: 'Error updating password', message: null });
+    res.render('changepassword', { error: 'Error updating password', message: null,  layout : false });
   }
 });
 
@@ -1159,7 +1200,7 @@ app.post('/monthly-report', async(req, res) => {
 })
 
 app.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { error: null });
+  res.render('forgot-password', { error: null,  layout : false });
 });
 
 app.post('/forgot-password', async (req, res) => {
@@ -1168,12 +1209,12 @@ app.post('/forgot-password', async (req, res) => {
   try {
     const user = await client.query('SELECT * FROM users WHERE user_id = $1', [matric_num]);
     if (user.rows.length === 0) {
-      return res.render('forgot-password', { error: 'Matric number not found in users table.' });
+      return res.render('forgot-password', { error: 'Matric number not found in users table.',  layout : false });
     }
 
     const student = await client.query('SELECT email FROM student WHERE matric_num = $1', [matric_num]);
     if (student.rows.length === 0) {
-      return res.render('forgot-password', { error: 'Email not found for this matric number.' });
+      return res.render('forgot-password', { error: 'Email not found for this matric number.',  layout : false });
     }
 
     const email = student.rows[0].email;
@@ -1195,20 +1236,20 @@ app.post('/forgot-password', async (req, res) => {
     res.redirect('/verify_otp');
   } catch (err) {
     console.error(err);
-    res.render('forgot-password', { error: 'Error sending OTP. Please try again.' });
+    res.render('forgot-password', { error: 'Error sending OTP. Please try again.',  layout : false });
   }
 });
 
 app.get('/verify_otp', (req, res) => {
-  res.render('otpverify', { error: null });
+  res.render('otpverify', { error: null,  layout : false });
 });
 
 app.post('/verify_otp', (req, res) => {
   const { otp } = req.body;
   if (otp === req.session.otp) {
-    res.render('set-password', { error: null, matric_num: req.session.otp_matric });
+    res.render('set-password', { error: null, matric_num: req.session.otp_matric,  layout : false });
   } else {
-    res.render('otpverify', { error: 'Invalid OTP' });
+    res.render('otpverify', { error: 'Invalid OTP',  layout : false });
   }
 });
 
@@ -1218,7 +1259,7 @@ app.post('/set-password', async (req, res) => {
   if (password !== confirm_password) {
     return res.render('set-password', {
       error: 'Passwords do not match',
-      matric_num,
+      matric_num, layout : false
     });
   }
 
@@ -1247,7 +1288,7 @@ app.post('/set-password', async (req, res) => {
     console.error(err);
     res.render('set-password', {
       error: 'Error resetting password. Please try again.',
-      matric_num,
+      matric_num, layout : false
     });
   }
 });
@@ -1264,7 +1305,7 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('loginpage');
+  res.render('loginpage', {layout : false});
 })
 
 app.listen(5000, () => {

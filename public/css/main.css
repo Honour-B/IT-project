@@ -1,0 +1,375 @@
+/* Core Layout Structure */
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  flex: 1;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  color: #f8f9fa;
+  min-height: 100vh;
+  padding: 40px 0; /* From profile styles, but adjusted for header/footer */
+  padding-top: 70px; /* To prevent overlap with fixed header */
+  padding-bottom: 60px; /* To prevent overlap with fixed footer */
+}
+
+/* Main content area */
+main {
+  flex: 1; /* Pushes footer to the bottom when content is short */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header (Navbar) - Fixed at top, hides on scroll down (via JS adding .hide class) */
+header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+}
+
+header.hide {
+  transform: translateY(-100%);
+}
+
+.navbar-custom {
+  background: rgba(17, 24, 39, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 30px 30px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  position: sticky; /* Fallback if not using fixed on header */
+  top: 0;
+  z-index: 10;
+  background-color: #222; /* Merged from overrides */
+}
+
+.navbar-custom a {
+  color: #dbeafe;
+  margin: 0 12px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  color: white; /* Merged from overrides */
+}
+
+.navbar-custom a:hover {
+  color: #38bdf8;
+  color: #ccc; /* Merged from overrides */
+}
+
+.navbar-custom .dropdown-toggle::after {
+  display: inline-block;
+  margin-left: .255em;
+  vertical-align: .255em;
+  content: "";
+  border-top: .3em solid;
+  border-right: .3em solid transparent;
+  border-left: .3em solid transparent;
+}
+
+.navbar-custom .dropdown-menu {
+  margin-top: 0.5rem;
+}
+
+.hover-dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+}
+
+.dropdown-menu-dark {
+  background-color: #333;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.dropdown-menu-dark .dropdown-item {
+  color: white;
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+  background-color: #444;
+  color: #fff;
+}
+
+/* Footer - Fixed at bottom, but uses flex to push to bottom of page if content is short; 
+   To "only appear at the bottom of the page", it stays at the end of content (not always visible in viewport if content is long).
+   If you want it to hide/show based on scroll position, JS would be needed to toggle visibility. */
+footer {
+  position: flex;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+  background-color: #0d1117; /* Ensures it's always styled as footer */
+  color: white;
+  padding: 30px 10px;
+  margin-top: 60px; /* Flex pushes it down */
+}
+
+footer.hide {
+  transform: translateY(100%);
+  /* Uncomment below if you want footer to only show when scrolled to bottom (JS toggle .hide) */
+  /* display: none; */
+}
+
+.footer {
+  background-color: #0d1117;
+  color: white;
+  padding: 30px 10px;
+  margin-top: 60px;
+}
+
+.footer a {
+  color: #91caff;
+  text-decoration: none;
+  margin: 0 10px;
+  transition: color 0.2s;
+}
+
+.footer a:hover {
+  color: #ffffff;
+}
+
+.social-icons i {
+  font-size: 20px;
+  margin: 0 10px;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+  background: linear-gradient(to right, #2563eb, #1e3a8a);
+  color: white;
+  padding: 35px 25px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  max-width: 700px;
+  margin: auto;
+  margin-top: 40px;
+  transition: transform 0.3s ease;
+}
+
+.welcome-banner:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
+  cursor: default;
+}
+
+.welcome-heading {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.matric-heading {
+  font-size: 20px;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.matric-heading span {
+  background-color: #ffffff;
+  color: #1e3a8a;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* Card */
+.card-custom {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  padding: 30px;
+  color: white;
+  max-width: 800px;
+  margin: 40px auto 20px;
+  transition: box-shadow 0.3s ease;
+}
+
+.card-custom:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.card-custom h5 {
+  color: #60a5fa;
+}
+
+/* Textarea */
+.log-textarea {
+  resize: vertical;
+  height: 120px;
+  font-size: 15px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #ffffff;
+  background-color: rgb(255, 255, 255);
+  color: #1f2937; /* Dark text for readability */
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.log-textarea:focus {
+  border-color: #60a5fa;
+  background-color: rgb(255, 255, 255);
+  outline: none;
+}
+
+/* Buttons */
+.btn-submit {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(to right, #2563eb, #1e40af);
+}
+
+.logout-btn {
+  background-color: #ef4444;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #f9fafb;
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 700px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  position: relative;
+  color: #1f2937;
+}
+
+.close {
+  position: absolute;
+  top: 10px; right: 15px;
+  font-size: 26px;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Image Previews */
+.submitted-images {
+  margin-top: 20px;
+}
+
+.submitted-images img {
+  margin: 5px;
+  border: 2px solid #60a5fa;
+  border-radius: 10px;
+  max-width: 200px;
+  transition: transform 0.3s;
+}
+
+.submitted-images img:hover {
+  transform: scale(1.05);
+}
+
+/* Profile Page Styles (Integrated into main layout) */
+.profile-wrapper {
+  max-width: 900px;
+  margin: auto;
+  background: #1e2a38;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-header h2 {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.info-item {
+  background-color: #27394d;
+  padding: 15px 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.info-label {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.info-icon {
+  margin-right: 8px;
+  color: #66d9ef;
+}
+
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  body {
+    padding: 20px 0; /* Adjust padding for mobile */
+  }
+}

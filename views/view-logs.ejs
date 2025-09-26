@@ -103,7 +103,7 @@ const weekNumber = Math.floor((weekStart - itStart) / (7 * 24 * 60 * 60 * 1000))
 
           <div class="mt-2">
             <% if (canEdit) { %>
-              <a href="/edit-log/<%= log.id %>" class="edit-btn"><i class="fas fa-edit"></i> Edit</a>
+              <a href="/edit-log/<%= log.log_id %>" class="edit-btn"><i class="fas fa-edit"></i> Edit</a>
             <% } else { %>
               <span class="edit-disabled"><i class="fas fa-lock"></i> Edit</span>
             <% } %>

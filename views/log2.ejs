@@ -1,414 +1,475 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>Internship Dashboard</title>
+  <title>Internship Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
   <style>
+    /* Core Layout Structure - Ensure html has the same background to prevent white defaults */
+    html {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      height: 100%;
+    }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
+    html, body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
 
-body {
-  flex: 1;
-}
+    body {
+      flex: 1;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #f8f9fa;
+      min-height: 100vh;
+      padding: 40px 0; /* From profile styles, adjusted */
+      padding-top: 120px; /* Increased to account for taller fixed header (navbar padding: 30px top/bottom) */
+      padding-bottom: 100px; /* To prevent overlap with fixed footer */
+      transition: padding 0.3s ease; /* Smooth any dynamic changes */
+    }
 
-main {
-  flex: 1; /* Pushes footer to the bottom when content is short */
-  display: flex;
-  flex-direction: column;
-}
+    /* Main content area */
+    main {
+      flex: 1; /* Pushes content without affecting fixed header/footer */
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* Header - Fixed at top, won't move with modal or scroll */
+    header {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      z-index: 1000;
+      transition: transform 0.3s ease-in-out;
+    }
 
-     body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-  color: #f8f9fa;
-  min-height: 100vh;
-}
+    header.hide {
+      transform: translateY(-100%);
+    }
 
-/* Navbar */
-.navbar-custom {
-  background: rgba(17, 24, 39, 0.9);
-  backdrop-filter: blur(8px);
-  padding: 30px 30px;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-.navbar-custom a {
-  color: #dbeafe;
-  margin: 0 12px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-.navbar-custom a:hover {
-  color: #38bdf8;
-}
+    .navbar-custom {
+      background: rgba(17, 24, 39, 1); /* Made fully opaque to prevent overlay tinting issues */
+      backdrop-filter: blur(8px);
+      padding: 30px 30px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      background-color: #222; /* Override for consistency */
+      margin: 0;
+    }
 
-/* Welcome Banner */
-.welcome-banner {
-  background: linear-gradient(to right, #2563eb, #1e3a8a);
-  color: white;
-  padding: 35px 25px;
-  border-radius: 20px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  max-width: 700px;
-  margin: auto;
-  margin-top: 40px;
-  transition: transform 0.3s ease;
-}
-.welcome-banner:hover {
-  transform: scale(1.02);
-  box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
-  cursor: default;
-}
-.welcome-heading {
-  font-size: 42px;
-  font-weight: 800;
-  margin: 0;
-}
-.matric-heading {
-  font-size: 20px;
-  margin-top: 10px;
-  font-weight: 500;
-}
-.matric-heading span {
-  background-color: #ffffff;
-  color: #1e3a8a;
-  padding: 6px 14px;
-  border-radius: 10px;
-  font-weight: bold;
-}
+    .navbar-custom a {
+      color: white; /* Override for dark theme */
+      margin: 0 12px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
 
-/* Card */
-.card-custom {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  padding: 30px;
-  color: white;
-  max-width: 800px;
-  margin: 40px auto 20px;
-  transition: box-shadow 0.3s ease;
-}
-.card-custom:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-}
-.card-custom h5 {
-  color: #60a5fa;
-}
+    .navbar-custom a:hover {
+      color: #ccc; /* Override hover */
+    }
 
-/* Textarea */
-.log-textarea {
-  resize: vertical;
-  height: 120px;
-  font-size: 15px;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid #ffffff;
-  background-color: rgb(255, 255, 255);
-  color: #1f2937; /* Dark text for readability */
-  transition: border-color 0.3s, background-color 0.3s;
-}
+    .navbar-custom .dropdown-toggle::after {
+      display: inline-block;
+      margin-left: .255em;
+      vertical-align: .255em;
+      content: "";
+      border-top: .3em solid;
+      border-right: .3em solid transparent;
+      border-left: .3em solid transparent;
+    }
 
-.log-textarea:focus {
-  border-color: #60a5fa;
-  background-color: rgb(255, 255, 255);
-  outline: none;
-}
+    .navbar-custom .dropdown-menu {
+      margin-top: 0.5rem;
+    }
 
-/* Buttons */
-.btn-submit {
-  background: linear-gradient(to right, #3b82f6, #2563eb);
-  color: white;
-  border: none;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 15px;
-  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-  transition: transform 0.2s ease, background 0.3s ease;
-}
-.btn-submit:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(to right, #2563eb, #1e40af);
-}
+    .hover-dropdown:hover .dropdown-menu {
+      display: block;
+      margin-top: 0;
+    }
 
-.logout-btn {
-  background-color: #ef4444;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-.logout-btn:hover {
-  background-color: #dc2626;
-}
+    .dropdown-menu-dark {
+      background-color: #333;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
 
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modal-content {
-  background-color: #f9fafb;
-  padding: 30px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 700px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  position: relative;
-  color: #1f2937;
-}
-.close {
-  position: absolute;
-  top: 10px; right: 15px;
-  font-size: 26px;
-  color: #333;
-  cursor: pointer;
-}
+    .dropdown-menu-dark .dropdown-item {
+      color: white;
+    }
 
-main {
-  flex: 1; /* pushes footer down */
-}
+    .dropdown-menu-dark .dropdown-item:hover {
+      background-color: #444;
+      color: #fff;
+    }
 
-/* Footer */
-.footer {
-  background-color: #0d1117;
-  color: white;
-  padding: 30px 10px;
-  margin-top: 60px;
-}
-.footer a {
-  color: #91caff;
-  text-decoration: none;
-  margin: 0 10px;
-  transition: color 0.2s;
-}
-.footer a:hover {
-  color: #ffffff;
-}
-.social-icons i {
-  font-size: 20px;
-  margin: 0 10px;
-}
+    /* Footer - Fixed at bottom, won't move with modal */
+    footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      z-index: 1000;
+      transition: transform 0.3s ease-in-out;
+      background-color: #0d1117;
+      color: white;
+    }
 
-/* Image Previews */
-.submitted-images {
-  margin-top: 20px;
-}
-.submitted-images img {
-  margin: 5px;
-  border: 2px solid #60a5fa;
-  border-radius: 10px;
-  max-width: 200px;
-  transition: transform 0.3s;
-}
-.submitted-images img:hover {
-  transform: scale(1.05);
-}
-.hover-dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
-  }
+    footer.hide {
+      transform: translateY(100%);
+    }
 
-.navbar-custom .dropdown-toggle::after {
-    display: inline-block;
-    margin-left: .255em;
-    vertical-align: .255em;
-    content: "";
-    border-top: .3em solid;
-    border-right: .3em solid transparent;
-    border-left: .3em solid transparent;
-  }
+    .footer {
+      background-color: #0d1117;
+      color: white;
+      padding: 30px 10px;
+      margin-top: 60px;
+    }
 
-  .navbar-custom .dropdown-menu {
-    margin-top: 0.5rem;
-  }
- /* Match dropdown to dark navbar */
-  .navbar-custom {
-    background-color: #222;
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .footer a {
+      color: #91caff;
+      text-decoration: none;
+      margin: 0 10px;
+      transition: color 0.2s;
+    }
 
-  .navbar-custom a {
-    color: white;
-    text-decoration: none;
-    margin: 0 10px;
-  }
+    .footer a:hover {
+      color: #ffffff;
+    }
 
-  .navbar-custom a:hover {
-    color: #ccc;
-  }
+    .social-icons i {
+      font-size: 20px;
+      margin: 0 10px;
+    }
 
-  .hover-dropdown:hover .dropdown-menu {
-    display: block;
-    margin-top: 0;
-  }
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(to right, #2563eb, #1e3a8a);
+      color: white;
+      padding: 35px 25px;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      max-width: 700px;
+      margin: auto;
+      margin-top: 40px;
+      transition: transform 0.3s ease;
+    }
 
-  .dropdown-menu-dark {
-    background-color: #333;
-    color: white;
-    border: none;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  }
+    .welcome-banner:hover {
+      transform: scale(1.02);
+      box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
+      cursor: default;
+    }
 
-  .dropdown-menu-dark .dropdown-item {
-    color: white;
-  }
+    .welcome-heading {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 0;
+    }
 
-  .dropdown-menu-dark .dropdown-item:hover {
-    background-color: #444;
-    color: #fff;
-  }
+    .matric-heading {
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
 
-  .navbar-custom .dropdown-toggle::after {
-    display: inline-block;
-    margin-left: .255em;
-    vertical-align: .255em;
-    content: "";
-    border-top: .3em solid;
-    border-right: .3em solid transparent;
-    border-left: .3em solid transparent;
-  }
+    .matric-heading span {
+      background-color: #ffffff;
+      color: #1e3a8a;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    /* Card */
+    .card-custom {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      padding: 30px;
+      color: white;
+      max-width: 800px;
+      margin: 40px auto 20px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .card-custom:hover {
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-custom h5 {
+      color: #60a5fa;
+    }
+
+    /* Textarea */
+    .log-textarea {
+      resize: vertical;
+      height: 120px;
+      font-size: 15px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #ffffff;
+      background-color: rgb(255, 255, 255);
+      color: #1f2937;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+
+    .log-textarea:focus {
+      border-color: #60a5fa;
+      background-color: rgb(255, 255, 255);
+      outline: none;
+    }
+
+    /* Buttons */
+    .btn-submit {
+      background: linear-gradient(to right, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(to right, #2563eb, #1e40af);
+    }
+
+    .logout-btn {
+      background-color: #ef4444;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #dc2626;
+    }
+
+    /* Modal - Adjusted overlay opacity for better gradient visibility; dark content to match theme */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6); /* Slightly lower opacity to preserve gradient without darkening too much */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1001; /* Higher than header/footer */
+    }
+
+    .modal-content {
+      background-color: #1e293b; /* Changed to dark theme (matches your gradient) instead of white-ish */
+      color: #f8f9fa; /* Light text for readability on dark bg */
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto; /* Scroll if content is long */
+    }
+
+    /* Scope loaded content to prevent style leaks */
+    .modal-loaded-content * {
+      background-color: transparent !important; /* Override any white backgrounds in fetched HTML */
+      color: #f8f9fa !important; /* Ensure text is light */
+    }
+
+    .close {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 26px;
+      color: #f8f9fa; /* Light color for dark modal */
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #ccc;
+    }
+
+    /* Profile Styles (if used on other pages) */
+    .profile-wrapper {
+      max-width: 900px;
+      margin: auto;
+      background: #1e2a38;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .profile-header h2 {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .info-item {
+      background-color: #27394d;
+      padding: 15px 20px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .info-label {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .info-icon {
+      margin-right: 8px;
+      color: #66d9ef;
+    }
+
+    @media (max-width: 768px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      body {
+        padding: 20px 0;
+        padding-top: 100px; /* Adjust for mobile header */
+        padding-bottom: 80px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-<div class="navbar-custom">
-  <div><strong>📚 E-Log Book</strong></div>
-  <div>
-    <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
-    <a href="/calendar"><i class="fa-solid fa-calendar"></i> Calendar</a>
-    <a href="/supervisor-details" id="supervisorLink" class="supervisor-link"><i class="fa-solid fa-user"></i> Supervisor</a>
+  <!-- Header (Navbar) -->
+  <header>
+    <div class="navbar-custom">
+      <div><strong>📚 E-Log Book</strong></div>
+      <div>
+        <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="/calendar"><i class="fa-solid fa-calendar"></i> Calendar</a>
+        <a href="#" id="supervisorLink" class="supervisor-link"><i class="fa-solid fa-user"></i> Supervisor</a> <!-- Removed href to prevent navigation; handled by JS -->
 
-    <!-- View Log Dropdown -->
-    <div class="dropdown hover-dropdown d-inline-block">
-      <a class="dropdown-toggle" href="#" id="logDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="fa-solid fa-file-lines"></i> View Log
-      </a>
-      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="logDropdown">
-        <li><a class="dropdown-item" href="/monthly-report">📅 Monthly Report</a></li>
-        <li><a class="dropdown-item" href="/view-logs">📄 All Logs</a></li>
-      </ul>
-    </div>
-
-    <a href="/edit-new-log"><i class="fa-solid fa-pen"></i> Edit Log</a>
-    <a href="/logout" class="logout-btn">Logout</a>
-  </div>
-</div>
-
-<main>
-  <!-- Welcome Banner -->
-  <div class="container mt-5 text-center">
-    <div class="welcome-banner mb-5">
-      <h1 class="welcome-heading">👋 Welcome</h1>
-      <h2 class="matric-heading"><span><%= matric_num %></span></h2>
-    </div>
-
-    <!-- Log Submission Card -->
-   <!-- Log Section -->
-<% if (internshipEnded) { %>
-  <div class="card-custom text-center">
-    <div class="alert alert-danger mb-0">
-      🚫 Your internship has ended. You can no longer submit logs.
-    </div>
-  </div>
-<% } else { %>
-  <div class="card-custom">
-    <h5 class="mb-4 text-start">🟦 Log Entry for: <%= today %></h5>
-
-    <% if (alreadySubmitted) { %>
-      <div class="alert alert-success">✅ You have already submitted your log for today.</div>
-    <% } else { %>
-      <form action="/submit-log" method="POST">
-        <div class="mb-4">
-          <textarea id="log_text" name="log_text" class="form-control log-textarea" placeholder="Write your daily log here..."></textarea>
+        <!-- View Log Dropdown -->
+        <div class="dropdown hover-dropdown d-inline-block">
+          <a class="dropdown-toggle" href="#" id="logDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa-solid fa-file-lines"></i> View Log
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="logDropdown">
+            <li><a class="dropdown-item" href="/monthly-report">📅 Monthly Report</a></li>
+            <li><a class="dropdown-item" href="/view-logs">📄 All Logs</a></li>
+          </ul>
         </div>
-        <input type="hidden" name="imagefiles" id="imagefiles">
-        <button type="button" id="upload_widget" class="btn btn-primary position-relative">
-          📎 Attach Image
-          <span id="image-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
-        </button>
-        <button type="submit" id="submit-log-btn" class="btn btn-submit">Submit Log</button>
-        <div id="image-preview" class="submitted-images mt-3"></div>
-      </form>
-    <% } %>
-  </div>
-<% } %>
 
-
-
-  <!-- Supervisor Modal -->
-  <div id="supervisorModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <div id="supervisorDetails"><p>Loading...</p></div>
+        <a href="/edit-new-log"><i class="fa-solid fa-pen"></i> Edit Log</a>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Cloudinary Widget -->
-  <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"><div id="image-preview" class="submitted-images"></div>
-</script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const uploadedImages = [];
-      const imageInput = document.getElementById('imagefiles');
-      const previewContainer = document.getElementById("image-preview");
-      const imageBadge = document.getElementById("image-count-badge");
-      function addImagePreview(url) {
-       const img = document.createElement("img");
-       img.src = url;
-       img.alt = "Uploaded image";
-       img.width = 200;
-       img.style.margin = "5px";
-       previewContainer.appendChild(img);
-        }
-      const widget = cloudinary.createUploadWidget({
-        cloudName: 'dujkkigqf', // 🔁 REPLACE THIS
-        uploadPreset: 'log book images', // 🔁 REPLACE THIS
-        multiple: true,
-        maxFiles: 3
-      }, (error, result) => {
-        if (!error && result && result.event === "success") {
-          uploadedImages.push(result.info.secure_url);
-          imageInput.value = JSON.stringify(uploadedImages);
-          console.log("Uploaded image:", result.info.secure_url);
-           imageBadge.textContent = uploadedImages.length;
+  <main>
+    <!-- Welcome Banner -->
+    <div class="container mt-5 text-center">
+      <div class="welcome-banner mb-5">
+        <h1 class="welcome-heading">👋 Welcome</h1>
+        <h2 class="matric-heading"><span><%= matric_num %></span></h2>
+      </div>
+
+      <!-- Log Submission Card -->
+      <% if (internshipEnded) { %>
+        <div class="card-custom text-center">
+          <div class="alert alert-danger mb-0">
+            🚫 Your internship has ended. You can no longer submit logs.
+          </div>
+        </div>
+      <% } else { %>
+        <div class="card-custom">
+          <h5 class="mb-4 text-start">🟦 Log Entry for: <%= today %></h5>
+
+          <% if (alreadySubmitted) { %>
+            <div class="alert alert-success">✅ You have already submitted your log for today.</div>
+          <% } else { %>
+            <form action="/submit-log" method="POST">
+              <div class="mb-4">
+                <textarea id="log_text" name="log_text" class="form-control log-textarea" placeholder="Write your daily log here..."></textarea>
+              </div>
+              <input type="hidden" name="imagefiles" id="imagefiles">
+              <button type="button" id="upload_widget" class="btn btn-primary position-relative">
+                📎 Attach Image
+                <span id="image-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">0</span>
+              </button>
+              <button type="submit" id="submit-log-btn" class="btn btn-submit">Submit Log</button>
+            </form>
+          <% } %>
+        </div>
+      <% } %>
+
+      <!-- Supervisor Modal -->
+      <div id="supervisorModal" class="modal" style="display:none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <div id="supervisorDetails"><p>Loading...</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cloudinary Widget -->
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const uploadedImages = [];
+        const imageInput = document.getElementById('imagefiles');
+        const imageBadge = document.getElementById("image-count-badge");
+
+        const widget = cloudinary.createUploadWidget({
+          cloudName: 'dujkkigqf', // 🔁 REPLACE THIS
+          uploadPreset: 'log book images', // 🔁 REPLACE THIS
+          multiple: true,
+          maxFiles: 3
+        }, (error, result) => {
+          if (!error && result && result.event === "success") {
+            uploadedImages.push(result.info.secure_url);
+            imageInput.value = JSON.stringify(uploadedImages);
+            console.log("Uploaded image:", result.info.secure_url);
+            imageBadge.textContent = uploadedImages.length;
             imageBadge.style.display = 'inline-block';
-        }
-      });
-        document.querySelector('form').addEventListener('submit', () => {
-        // Clear the preview after submission
-        document.getElementById("image-preview").innerHTML = '';
+          }
         });
 
       document.getElementById("upload_widget").addEventListener("click", function () {
@@ -474,5 +535,3 @@ main {
 </body>
 </html>
 </html>
-
-

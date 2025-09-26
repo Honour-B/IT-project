@@ -11,6 +11,8 @@
 -- ORDER BY student_id DESC
 
 -- UPDATE student set supervisors_id = '109'
--- where matric_num = 'a123456'
+-- where matric_num = '1234567890'
 
 SELECT * FROM student
+
+ɪɴғ•匚ㄖㄥㄖ尺

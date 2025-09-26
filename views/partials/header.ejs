@@ -1,0 +1,21 @@
+<div class="navbar-custom">
+  <div><strong>📚 E-Log Book</strong></div>
+  <div>
+    <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+    <a href="/calendar"><i class="fa-solid fa-calendar"></i> Calendar</a>
+    <a href="/supervisor-details" id="supervisorLink" class="supervisor-link"><i class="fa-solid fa-user"></i> Supervisor</a>
+
+    <div class="dropdown hover-dropdown d-inline-block">
+      <a class="dropdown-toggle" href="#" id="logDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-file-lines"></i> View Log
+      </a>
+      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="logDropdown">
+        <li><a class="dropdown-item" href="/monthly-report">📅 Monthly Report</a></li>
+        <li><a class="dropdown-item" href="/view-logs">📄 All Logs</a></li>
+      </ul>
+    </div>
+
+    <a href="/edit-new-log"><i class="fa-solid fa-pen"></i> Edit Log</a>
+    <a href="/logout" class="logout-btn">Logout</a>
+  </div>
+</div>

@@ -157,18 +157,13 @@
     }
   }
 </style>
-
-
-<!-- <script src="https://cdn.tiny.cloud/1/f9fgv36fctaubgc5g47pqqucxtmdpsld7e7qz1qe85yhuncg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
-<!-- <script src="https://releases.transloadit.com/uppy/"></script>no -->
-
 </head>
 <body>
 
   <div class="edit-card">
     <h2><i class="fas fa-pen-to-square"></i> Edit Your Log</h2>
 
-    <form action="/edit-log" method="POST">
+    <form action="/edit-new-log" method="POST">
       <input type="hidden" name="log_id" value="<%= log.log_id %>">
       <input type="hidden" name="imagefiles" id="imagefiles" value='<%= JSON.stringify(log.images || []) %>'>
       <label for="log_text">Log Text:</label>
@@ -182,6 +177,7 @@
   <% if (log.images && log.images.length > 0) { %>
     <h5>Previously Uploaded Images:</h5>
     <% log.images.forEach((img, index) => { %>
+      
       <div class="image-container position-relative d-inline-block m-2">
         <img src="<%= img %>" alt="uploaded image" width="150" class="rounded">
         <button type="button" class="btn-close position-absolute top-0 start-100 translate-middle remove-image" data-index="<%= index %>"></button>
